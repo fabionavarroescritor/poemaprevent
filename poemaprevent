@@ -1,0 +1,118 @@
+//chamar função gráfica
+PGraphics pg;
+
+//chamar função fonte
+PFont fonte;
+
+//chamar lista
+String frase = "PREVENT SCHÄFER";
+
+//chamar variáveis matemáticas
+float f;
+float t;
+
+//bloco canvas
+void setup() {
+
+  //chama lista de fontes
+  String[] fontList = PFont.list();
+  printArray(fontList);
+
+  //tamanho do canvas em renderização 3D
+  size(910, 710, P3D);
+
+  //cria fonte da lista chamada acima
+  fonte = createFont("Prometo W04 XBold", 70);
+
+  //cria função gráfica para renderização do sketch em 3D
+  pg = createGraphics(width, height, P3D);
+
+  //suaviza renderização
+  smooth(8);
+}
+//cria bloco de desenho
+void draw() {
+  //fundo
+
+  background(255);
+
+  //valor das funções matemáticas
+  f+=0.003;
+  t+=0.02;
+
+  //luzes da animação direcionais
+  directionalLight(255, 127, 255, -1, 1, -1);
+  directionalLight(127, 255, 127, -1, 1, -1);
+
+  //inicia o desenho
+  pg.beginDraw();
+
+  //inicia gravação dos vértices
+  pg.beginShape();
+
+  //iterador para os vértices
+  for (int i = 0; i< 1200; i+=15) {
+
+    //conjunto de variáveis para o eixo z
+    float nvertex = tan(i*f+t)*120;
+    float zv = map(width+nvertex, 0, width, -700, 170);
+
+    //funções de colorização
+    pg.stroke(
+      127+sin(i*0.021+f)*127,
+      127+cos(i*0.032+f)*127,
+      127+tan(i*0.003+f)*127);
+
+    pg.noFill();
+    //pg.noStroke();
+
+    //funções para desenho dos vértices
+    pg.vertex(noise(t)*width, noise(f)*height);
+    pg.vertex(width/2+sin(i*0.01)*1200/2, height/2+cos(i*0.01)*1200/2, zv);
+  }
+  //finalização de gravação dos vértices
+  pg.endShape();
+
+  //variaveis para criação da frase
+  float my = 50+sin(f*0.00003+t)*frase.length();
+
+  //iterador da frase(obs: é SEMPRE NECESSÁRIO PROTEGER A FORMAÇÃO COM ABSOLUTOS
+  for (int y = 0; y < height; y += 2+abs(my)) {
+
+    //variável do eixo z para frase
+    float zp = noise(y+tan(f*0.004+t)*frase.length());
+
+    //abre a matriz para o desenho
+    pg.pushMatrix();
+
+    //translada os eixos
+    pg.translate(100+sin(y*0.01+t)*2, y, zp);
+    
+    //cria rotação com iterador e eixo Y)
+    pg.translate(y, height/2);
+    pg.rotateY(radians(frameCount));
+    //pg.rotateX(radians(frameCount));
+    pg.translate(-y, -height/2);
+
+    //chama função de desenh da fonte com a fonte criada
+    pg.textFont(fonte);
+
+    //função de cor da frase
+    pg.stroke(
+      127+sin(y*0.1+t)*127,
+      127+sin(y*0.011+t)*127,
+      127+sin(y*0.033+t)*127, 40
+      );
+    pg.fill(255, 70);
+
+    //desenha fonte na posição desifnada pelas variáveis acima
+    pg.text(frase, my, my+zp, zp);
+
+    //fecha matriz
+    pg.popMatrix();
+  }
+  //termina desenho
+  pg.endDraw();
+
+  image(pg, 0, 0);
+}
